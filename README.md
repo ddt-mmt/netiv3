@@ -1,64 +1,47 @@
-# netiV3 Project Rollback Instructions
+# netiV3 - AI-Powered Network Analysis Tool
 
-This document provides instructions on how to roll back the `netiV3` application to a previous working state using a backup archive.
+## Installation
 
-## Backup Archive
+To set up and run the netiV3 application, follow these steps:
 
-The latest backup archive is located at: `/usr/lib/gemini-cli/netiV3_backup_latest.tar.gz`
-
-## Rollback Procedure
-
-Follow these steps to perform a rollback:
-
-1.  **Stop the netiV3 service:**
+1.  **Clone the repository:**
     ```bash
-    sudo systemctl stop netiV3
+    git clone https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git
+    cd YOUR_REPOSITORY_NAME
+    ```
+    (Replace `YOUR_GITHUB_USERNAME` and `YOUR_REPOSITORY_NAME` with your actual GitHub details.)
+
+2.  **Create a Python Virtual Environment:**
+    It's recommended to use a virtual environment to manage dependencies.
+    ```bash
+    python3 -m venv venv
     ```
 
-2.  **Remove the current netiV3 application directory:**
+3.  **Activate the Virtual Environment:**
     ```bash
-    sudo rm -rf /usr/lib/gemini-cli/netiV3
+    source venv/bin/activate
     ```
 
-3.  **Extract the backup archive:**
-    This command will extract the contents of the backup directly into the correct location, preserving the directory structure.
+4.  **Install Dependencies:**
+    Install all required Python packages.
     ```bash
-    sudo tar -xzf /usr/lib/gemini-cli/netiV3_backup_latest.tar.gz -C /
+    pip install -r netiV3/requirements.txt
     ```
 
-4.  **Recreate the Python virtual environment:**
-    It's crucial to recreate the virtual environment to ensure all dependencies are correctly linked and up-to-date.
+5.  **Set Environment Variables:**
+    The application requires a `SECRET_KEY` and optionally a `GEMINI_API_KEY`.
     ```bash
-    python3 -m venv /usr/lib/gemini-cli/netiV3/venv
+    export SECRET_KEY="your_secret_key_here"
+    export GEMINI_API_KEY="your_gemini_api_key_here" # Optional, for AI analysis
     ```
+    (Replace `"your_secret_key_here"` and `"your_gemini_api_key_here"` with your actual keys.)
 
-5.  **Install application dependencies:**
-    Install all required Python packages from the `requirements.txt` file.
+6.  **Run the Application:**
     ```bash
-    /usr/lib/gemini-cli/netiV3/venv/bin/pip install -r /usr/lib/gemini-cli/netiV3/requirements.txt
+    gunicorn -w 4 run:app -b 0.0.0.0:5004
     ```
+    The application should now be running on `http://0.0.0.0:5004`.
 
-6.  **Reload the systemd daemon:**
-    This ensures systemd recognizes any changes to service configurations.
-    ```bash
-    sudo systemctl daemon-reload
-    ```
+## Usage
 
-7.  **Start the netiV3 service:**
-    ```bash
-    sudo systemctl start netiV3
-    ```
-
-8.  **Verify the service status:**
-    Check if the service is running correctly.
-    ```bash
-    sudo systemctl status netiV3
-    ```
-    You should see `Active: active (running)`.
-
-## Important Notes
-
-*   **API Key for AI Analysis:** The Gemini AI analysis feature requires a `GEMINI_API_KEY`. Ensure this is provided securely at runtime (e.g., via environment variables) as it is not stored in service files.
-*   **NSLookup Behavior:** When using NSLookup, providing an IP address will perform a reverse DNS lookup. For forward DNS lookup, provide a domain name.
-
-This concludes the rollback instructions.
+(Further usage instructions can be added here later.)
