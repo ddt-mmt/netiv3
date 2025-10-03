@@ -1,0 +1,44 @@
+{% extends "main_navigation.html" %}
+
+{% block title %}Log Analyzer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Log Analyzer</h1>
+    <form id="logAnalyzerForm">
+        <label for="log_data">Paste Log Data Here:</label>
+        <textarea id="log_data" name="log_data" rows="10" cols="50" required></textarea>
+        <br>
+        <label for="api-key-input">AI Engine API Key:</label>
+        <input type="password" id="api-key-input" placeholder="Enter your AI Engine API Key">
+        <br>
+        <button type="submit">Analyze Log</button>
+    </form>
+    <div id="analysisResults">
+        <!-- Analysis results will be displayed here -->
+    </div>
+</div>
+
+<script>
+    document.getElementById('logAnalyzerForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const logData = document.getElementById('log_data').value;
+
+        fetch('/log_analyzer', { // Assuming a /log_analyzer endpoint
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ log_data: logData }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('analysisResults').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('analysisResults').innerHTML = '<p style="color: red;">Error during analysis.</p>';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="{{ lang_code }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ lang.index_title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+        .card-deck .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .card-deck .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+        .card-title {
+            font-weight: bold;
+        }
+        .jumbotron-custom {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="jumbotron jumbotron-fluid jumbotron-custom rounded">
+            <div class="container">
+                <h1 class="display-4">{{ lang.app_name }}</h1>
+                <p class="lead">{{ lang.app_tagline }}</p>
+            </div>
+        </div>
+
+        <h2 class="mb-4 text-center">{{ lang.select_analysis_tool }}</h2>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100" onclick="window.location.href='net_analysis';">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ lang.network_analysis_card_title }}</h5>
+                        <p class="card-text">{{ lang.network_analysis_card_text }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100" onclick="window.location.href='domain_subdomain_target';">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ lang.web_analysis_card_title }}</h5>
+                        <p class="card-text">{{ lang.web_analysis_card_text }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100" onclick="window.location.href='network_device_target';">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ lang.network_device_analyzer_card_title }}</h5>
+                        <p class="card-text">{{ lang.network_device_analyzer_card_text }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100" onclick="window.location.href='log_analyzer';">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ lang.log_analyzer_card_title }}</h5>
+                        <p class="card-text">{{ lang.log_analyzer_card_text }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

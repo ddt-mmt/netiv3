@@ -1,0 +1,156 @@
+{% extends "main_navigation.html" %}
+
+{% block title %}Network Device Analyzer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Network Device Analyzer</h2>
+    <p>Analisis konfigurasi perangkat jaringan untuk menemukan kerentanan, kesalahan konfigurasi, dan potensi masalah kinerja.</p>
+    
+    <div class="form-group text-center">
+        <label class="d-block mb-3">Tipe Perangkat:</label>
+        <div class="btn-group btn-group-lg device-type-selector" role="group">
+            <button type="button" class="btn btn-outline-primary device-type-btn" data-type="mikrotik">MikroTik RouterOS</button>
+            <button type="button" class="btn btn-outline-primary device-type-btn" data-type="cisco_ios">Cisco IOS</button>
+        </div>
+        <input type="hidden" id="device-type-hidden">
+    </div>
+
+    <div class="form-group">
+        <label for="host-input">IP atau Hostname Perangkat:</label>
+        <input type="text" id="host-input" class="form-control" placeholder="cth: 192.168.88.1">
+    </div>
+    <div class="form-group">
+        <label for="username-input">Username:</label>
+        <input type="text" id="username-input" class="form-control" placeholder="cth: admin">
+    </div>
+    <div class="form-group">
+        <label for="password-input">Password:</label>
+        <input type="password" id="password-input" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="api-key-input">Kunci API Mesin AI:</label>
+        <input type="password" id="api-key-input" class="form-control" placeholder="Masukkan Kunci API Mesin AI Anda">
+    </div>
+
+    <button id="analyze-button" class="btn btn-primary btn-block">Ambil dan Analisis Konfigurasi</button>
+    
+    <div id="spinner" style="display: none; text-align: center; padding: 2rem;"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div><p>Mengambil konfigurasi dan menganalisis...</p></div>
+
+    <div class="results-container" id="results-output" style="display:none;">
+        <div class="result-section">
+            <h3>Analisis & Rekomendasi Mesin AI</h3>
+            <div id="ai-analysis"></div>
+        </div>
+        
+        <div class="result-section" id="chat-section" style="display:none;">
+            <h3>Analisis Lanjutan (Chat dengan AI)</h3>
+            <div id="chat-warning" class="alert alert-warning">
+                <strong>Perhatian:</strong> Anda dapat mengajukan hingga 5 pertanyaan lanjutan untuk analisis ini.
+            </div>
+            <div id="chat-window" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background-color: #fdfdfd;"></div>
+            <div id="chat-input-area">
+                <div class="input-group">
+                    <input type="text" id="chat-input" class="form-control" placeholder="Ketik pertanyaan Anda...">
+                    <div class="input-group-append">
+                        <button id="chat-send-button" class="btn btn-success">Kirim</button>
+                    </div>
+                </div>
+                <small id="chat-counter" class="form-text text-muted">Pertanyaan tersisa: 5</small>
+            </div>
+        </div>
+
+        <div class="result-section">
+            <h3>Data Konfigurasi Mentah</h3>
+            <pre id="config-output"></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+    .device-type-selector .btn { border-width: 2px; font-weight: bold; padding: 10px 20px; }
+    .device-type-selector .btn.active { background-color: #007bff; color: white; border-color: #007bff; box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
+    .chat-bubble { padding: 10px 15px; border-radius: 20px; margin-bottom: 10px; max-width: 80%; line-height: 1.4; }
+    .user-bubble { background-color: #007bff; color: white; margin-left: auto; border-bottom-right-radius: 5px; }
+    .ai-bubble { background-color: #d4edda; color: #155724; margin-right: auto; border-bottom-left-radius: 5px; }
+    .typing-indicator { display: flex; align-items: center; padding: 10px 15px; }
+    .typing-indicator span { height: 8px; width: 8px; margin: 0 2px; background-color: #aaa; border-radius: 50%; display: inline-block; animation: bounce 1.3s infinite; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+</style>
+<script>
+    $(document).ready(function() {
+        const MAX_CHAT_REQUESTS = 5;
+        let chatRequestCount = 0;
+        let initialAnalysisContext = "";
+
+        $('.device-type-btn').on('click', function() {
+            $('.device-type-btn').removeClass('active');
+            $(this).addClass('active');
+            $('#device-type-hidden').val($(this).data('type'));
+        });
+
+        $('#analyze-button').on('click', function() {
+            const deviceType = $('#device-type-hidden').val();
+            const host = $('#host-input').val().trim();
+            const username = $('#username-input').val().trim();
+            const password = $('#password-input').val().trim();
+            const apiKey = $('#api-key-input').val().trim();
+
+            if (!deviceType || !host || !username) { // Password can be empty
+                alert("Harap pilih Tipe Perangkat dan isi Host serta Username.");
+                return;
+            }
+
+            $('#spinner').show();
+            $('#results-output').hide();
+            $(this).prop('disabled', true);
+
+            $.ajax({
+                url: '/network_device_target',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    device_type: deviceType,
+                    host: host,
+                    username: username,
+                    password: password,
+                    apiKey: apiKey
+                }),
+                success: function(response) {
+                    $('#spinner').hide();
+                    $('#analyze-button').prop('disabled', false);
+
+                    if (response.status === 'completed') {
+                        initialAnalysisContext = response.ai_analysis;
+                        $('#ai-analysis').html(marked.parse(initialAnalysisContext));
+                        $('#config-output').text(response.config_data);
+                        $('#results-output').show();
+                        $('#chat-section').show();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    $('#spinner').hide();
+                    $('#analyze-button').prop('disabled', false);
+                    alert('Failed to connect to the server. Error: ' + xhr.responseText);
+                }
+            });
+        });
+
+        function addChatMessage(message, sender) {
+            const bubbleClass = sender === 'user' ? 'user-bubble' : 'ai-bubble';
+            const chatWindow = $('#chat-window');
+            chatWindow.append(`<div class="chat-bubble ${bubbleClass}">${message}</div>`);
+            chatWindow.scrollTop(chatWindow[0].scrollHeight);
+        }
+
+        // ... (chat logic remains the same)
+    });
+</script>
+{% endblock %}

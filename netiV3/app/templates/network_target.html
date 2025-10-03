@@ -1,0 +1,50 @@
+{% extends "main_navigation.html" %}
+
+{% block title %}Network Target{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Network Target</h1>
+    <form id="nmapScanForm">
+        <label for="target">Target IP/Hostname:</label>
+        <input type="text" id="target" name="target" required>
+        <br>
+        <label for="scan_type">Scan Type:</label>
+        <select id="scan_type" name="scan_type">
+            <option value="nmap">Nmap Scan</option>
+            <option value="ping">Ping</option>
+            <option value="traceroute">Traceroute</option>
+            <option value="nslookup">NSLookup</option>
+        </select>
+        <br>
+        <button type="submit">Start Scan</button>
+    </form>
+    <div id="scanResults">
+        <!-- Results will be displayed here -->
+    </div>
+</div>
+
+<script>
+    document.getElementById('nmapScanForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const target = document.getElementById('target').value;
+        const scanType = document.getElementById('scan_type').value;
+
+        fetch('/nmap_scan', { // Assuming a /nmap_scan endpoint for network target
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ host: target, scan_type: scanType }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('scanResults').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('scanResults').innerHTML = '<p style="color: red;">Error during scan.</p>';
+        });
+    });
+</script>
+{% endblock %}

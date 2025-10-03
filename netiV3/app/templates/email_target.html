@@ -1,0 +1,44 @@
+{% extends "main_navigation.html" %}
+
+{% block title %}Email Target{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Email Target</h1>
+    <form id="emailScanForm">
+        <label for="target_email">Target Email:</label>
+        <input type="email" id="target_email" name="target_email" required>
+        <br>
+        <label for="api-key-input">AI Engine API Key:</label>
+        <input type="password" id="api-key-input" placeholder="Enter your AI Engine API Key">
+        <br>
+        <button type="submit">Analyze Email</button>
+    </form>
+    <div id="scanResults">
+        <!-- Results will be displayed here -->
+    </div>
+</div>
+
+<script>
+    document.getElementById('emailScanForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const targetEmail = document.getElementById('target_email').value;
+
+        fetch('/email_target', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ target_email: targetEmail }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('scanResults').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('scanResults').innerHTML = '<p style="color: red;">Error during analysis.</p>';
+        });
+    });
+</script>
+{% endblock %}

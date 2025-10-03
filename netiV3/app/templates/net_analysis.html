@@ -1,0 +1,206 @@
+{% extends "main_navigation.html" %}
+
+{% block title %}Net Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Net Analysis</h1>
+    <div class="form-group mt-4">
+        <label for="apiKey">AI Key:</label>
+        <input type="password" class="form-control" id="apiKey" placeholder="Masukkan AI Key Anda untuk analisis otomatis">
+    </div>
+    <hr>
+    <p>Pilih alat analisis jaringan dari tab di bawah ini.</p>
+
+    <ul class="nav nav-tabs" id="netAnalysisTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="ping-tab" data-toggle="tab" href="#ping" role="tab" aria-controls="ping" aria-selected="true">Ping</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="traceroute-tab" data-toggle="tab" href="#traceroute" role="tab" aria-controls="traceroute" aria-selected="false">Traceroute</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="nslookup-tab" data-toggle="tab" href="#nslookup" role="tab" aria-controls="nslookup" aria-selected="false">NSLookup</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link font-weight-bold" id="nmap-tab" data-toggle="tab" href="#nmap" role="tab" aria-controls="nmap" aria-selected="false">Nmap</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="netAnalysisTabContent">
+        <!-- Ping Tab -->
+        <div class="tab-pane fade show active" id="ping" role="tabpanel" aria-labelledby="ping-tab">
+            <div class="card card-body mt-3">
+                <form class="analysisForm" data-url="/run_ping">
+                    <div class="form-group">
+                        <label for="pingTarget">Target IP or Domain:</label>
+                        <input type="text" class="form-control" name="target" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Run Analysis</button>
+                </form>
+            </div>
+        </div>
+        <!-- Traceroute Tab -->
+        <div class="tab-pane fade" id="traceroute" role="tabpanel" aria-labelledby="traceroute-tab">
+            <div class="card card-body mt-3">
+                <form class="analysisForm" data-url="/run_traceroute">
+                    <div class="form-group">
+                        <label for="tracerouteTarget">Target IP or Domain:</label>
+                        <input type="text" class="form-control" name="target" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Run Analysis</button>
+                </form>
+            </div>
+        </div>
+        <!-- NSLookup Tab -->
+        <div class="tab-pane fade" id="nslookup" role="tabpanel" aria-labelledby="nslookup-tab">
+            <div class="card card-body mt-3">
+                <form class="analysisForm" data-url="/run_nslookup">
+                    <div class="form-group">
+                        <label for="nslookupTarget">Target IP or Domain:</label>
+                        <input type="text" class="form-control" name="target" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Run Analysis</button>
+                </form>
+            </div>
+        </div>
+        <!-- Nmap Tab -->
+        <div class="tab-pane fade" id="nmap" role="tabpanel" aria-labelledby="nmap-tab">
+            <div class="card card-body mt-3">
+                <form id="nmapForm">
+                    <div class="form-group">
+                        <label for="nmapTarget">Target IP, Domain, or Subnet:</label>
+                        <input type="text" class="form-control" id="nmapTarget" name="target" required>
+                    </div>
+                    <hr>
+                    <label>Metode Scan:</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="scan_type" id="pingScan" value="ping_scan" checked>
+                        <label class="form-check-label" for="pingScan">
+                            <strong>Ping Scan</strong>
+                        </label>
+                        <small class="form-text text-muted">Hanya cek host aktif di jaringan, tanpa port scan. Cepat dan bagus untuk pemetaan awal.</small>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="radio" name="scan_type" id="quickScan" value="quick_scan">
+                        <label class="form-check-label" for="quickScan">
+                            <strong>Quick Scan</strong>
+                        </label>
+                        <small class="form-text text-muted">Memindai 100 port paling umum. Sangat cepat untuk pemeriksaan awal.</small>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="radio" name="scan_type" id="intenseScan" value="intense_scan">
+                        <label class="form-check-label" for="intenseScan">
+                            <strong>Intense Scan</strong>
+                        </label>
+                        <small class="form-text text-muted">Memindai 1000 port, mendeteksi OS & versi. Komprehensif namun lebih lambat.</small>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="radio" name="scan_type" id="udpScan" value="udp_scan">
+                        <label class="form-check-label" for="udpScan">
+                            <strong>UDP Scan</strong>
+                        </label>
+                        <small class="form-text text-muted">Memindai port UDP yang sering terlewat. Penting untuk layanan seperti DNS/SNMP.</small>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="radio" name="scan_type" id="vulnScan" value="vuln_scan">
+                        <label class="form-check-label" for="vulnScan">
+                            <strong>Vulnerability Scan</strong>
+                        </label>
+                        <small class="form-text text-muted">Paling canggih. Mencari kerentanan umum (CVEs) secara aktif menggunakan skrip Nmap.</small>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-block mt-4">Run Nmap Analysis</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiAnalysisResult" class="mt-4">
+        <h3>Hasil Analisis AI</h3>
+        <pre id="ai-output" style="background-color: #e9f5e9; color: #333; padding: 1rem; border-radius: 6px; white-space: pre-wrap;"></pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    function runAiAnalysis(rawResults) {
+        const apiKey = $('#apiKey').val();
+
+        if (!apiKey) {
+            $('#ai-output').html('<span class="text-danger">Please enter your AI Key to run the analysis.</span>');
+            return;
+        }
+
+        $('#ai-output').html('Generating AI analysis... Please wait.');
+        $.ajax({
+            url: '/analyze_results',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ api_key: apiKey, results: rawResults }),
+            success: function(response) {
+                if (response.error) {
+                    $('#ai-output').html('<span class="text-danger">Error: ' + response.error + '</span>');
+                } else {
+                    $('#ai-output').text(response.analysis);
+                }
+            },
+            error: function(xhr) {
+                $('#ai-output').html('<span class="text-danger">Failed to fetch AI analysis: ' + xhr.responseText + '</span>');
+            }
+        });
+    }
+
+    // Handler for simple forms (Ping, Traceroute, NSLookup)
+    $(document).on('submit', '.analysisForm', function(event) {
+        event.preventDefault();
+        const url = $(this).data('url');
+        const target = $(this).find('input[name="target"]').val();
+        
+        $('#ai-output').html('Running scan...');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ target: target }),
+            success: function(response) {
+                if (response.error) {
+                    $('#ai-output').html('<span class="text-danger">Error: ' + response.error + '</span>');
+                } else {
+                    runAiAnalysis(response.result);
+                }
+            },
+            error: function(xhr) {
+                $('#ai-output').html('<span class="text-danger">Failed to run scan: ' + xhr.responseText + '</span>');
+            }
+        });
+    });
+
+    // Handler for Nmap form
+    $('#nmapForm').submit(function(event) {
+        event.preventDefault();
+        const target = $('#nmapTarget').val();
+        const scanType = $('input[name="scan_type"]:checked').val();
+
+        $('#ai-output').html('Running Nmap scan... This may take several minutes depending on the scan type.');
+        $.ajax({
+            url: '/run_nmap',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ target: target, scan_type: scanType }),
+            success: function(response) {
+                if (response.error) {
+                    $('#ai-output').html('<span class="text-danger">Error: ' + response.error + '</span>');
+                } else {
+                    runAiAnalysis(response.result);
+                }
+            },
+            error: function(xhr) {
+                $('#ai-output').html('<span class="text-danger">Failed to run Nmap scan: ' + xhr.responseText + '</span>');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
